@@ -26,7 +26,7 @@ public class Aggregate {
                 groups [i-3] = args [i];
             }
             groups [len] = args [1];
-            organize(parameters, groups);
+            organize(parameters, groups); // get the columns necessary
     }
 
     static void organize (String [] parameters, String[] groups){
@@ -42,28 +42,26 @@ public class Aggregate {
         try {
             buffer = br.readLine().split(",");
             int [] indeces = get_index (groups, buffer);
-            String [] vol = new String [indeces.length];
             String temp = "";
-            int y = 0;
-            int x = 0;
+            
             while ((temp = br.readLine()) != null){
+                String [] vol = new String [indeces.length];
                 buffer = temp.split(",");
-                y = 0;
+                int y = 0;
                 for (int i : indeces){
                     vol[y] = buffer[i];
-                   y++;
+                    y++;
                 }
-                list.add(x, vol);
-                x++;    
+                list.add(vol);   
             }
-            System.out.println (x);
-            System.out.println (Arrays.toString (list.get(5)));
+            for (int i = 0 ; i < list.size() ; i++){
+                System.out.println (Arrays.toString (list.get(i)));
+            }
         }catch (IOException e){
             System.err.print ("Header missing");
         } 
 
     }
-
     static int [] get_index (String [] groups, String [] buffer){
         int [] indeces = new int [groups.length];
         int j = 0;
