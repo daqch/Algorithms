@@ -1,5 +1,3 @@
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.*;
 import java.util.*;
 public class Aggregate {
@@ -8,10 +6,7 @@ public class Aggregate {
         System.err.printf("Usage: java Aggregate <function> <aggregation column> <csv file> <group column 1> <group column 2> ...\n");
 		System.err.printf("Where <function> is one of \"count\", \"count_distinct\", \"sum\", \"avg\"\n");	
     }
-
-
     public static void main (String [] args){
-
         if (args.length < 4){
             showUsage();
             return;
@@ -26,10 +21,11 @@ public class Aggregate {
                 groups [i-3] = args [i];
             }
             groups [len] = args [1];
-            organize(parameters, groups); // get the columns necessary
-    }
-
-    static void organize (String [] parameters, String[] groups){
+            String [][] data = organize(parameters, groups); // get the columns necessary
+            sort_data (data);
+            perform (data , parameters [0]);
+        }   
+    static String [][] organize (String [] parameters, String[] groups){
         BufferedReader br = null;
         try {
           br = new BufferedReader(new FileReader(parameters[1]));
@@ -43,7 +39,6 @@ public class Aggregate {
             buffer = br.readLine().split(",");
             int [] indeces = get_index (groups, buffer);
             String temp = "";
-            
             while ((temp = br.readLine()) != null){
                 String [] vol = new String [indeces.length];
                 buffer = temp.split(",");
@@ -54,13 +49,15 @@ public class Aggregate {
                 }
                 list.add(vol);   
             }
-            for (int i = 0 ; i < list.size() ; i++){
-                System.out.println (Arrays.toString (list.get(i)));
+            String [][] final_Strings = new String[list.size()][indeces.length];
+            for (int i = 0; i<list.size(); i++){
+                final_Strings[i] = list.get(i);
             }
+            return final_Strings;
         }catch (IOException e){
             System.err.print ("Header missing");
-        } 
-
+        }
+        return null;
     }
     static int [] get_index (String [] groups, String [] buffer){
         int [] indeces = new int [groups.length];
@@ -71,5 +68,27 @@ public class Aggregate {
             j++; 
         }
         return indeces;
+    }
+    static void sort_data (String [][] data){
+        Arrays.sort (data, new Comparator <String[]>(){
+            @Override
+            public int compare(final String[] entry1, final String[] entry2){
+                String time1 = entry1[0];
+                String time2 = entry2[0];
+                if (time1.compareTo(time2) == 0){
+                   for (int i = 1; i< data[0].length - 1;i++){
+                        time1 = entry1[i];
+                        time2 = entry2[i];
+                        if (time1.compareTo(time2) != 0){
+                            break;
+                        }
+                   }
+                }
+                return time1.compareTo(time2);
+            }
+        });
+    }
+    static void perform (String [][] data , String function){
+        ;
     }
 }
