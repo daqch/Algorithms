@@ -7,7 +7,7 @@ public class Aggregate {
 		System.err.printf("Where <function> is one of \"count\", \"count_distinct\", \"sum\", \"avg\"\n");	
     }
     public static void main (String [] args){
-        //long startTime = System.nanoTime();
+        long startTime = System.nanoTime();
         if (args.length < 4){
             showUsage();
             return;
@@ -34,9 +34,9 @@ public class Aggregate {
             }else{
             avg_sum (data, parameters [0]);
             }
-            //long endTime   = System.nanoTime();
-            //long totalTime = (endTime - startTime)/1000000000;
-            //System.out.println(totalTime);
+            long endTime   = System.nanoTime();
+            long totalTime = (endTime - startTime)/1000000000;
+            System.out.println(totalTime);
         }   
     static String [][] organize (String [] parameters, String[] groups){
         BufferedReader br = null;
