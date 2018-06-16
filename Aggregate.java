@@ -1,4 +1,5 @@
 import java.io.*;
+import java.text.DecimalFormat;
 import java.util.*;
 public class Aggregate {
 
@@ -23,14 +24,20 @@ public class Aggregate {
             groups [len] = args [1];
             String [][] data = organize(parameters, groups); // get the columns necessary
             sort_data (data);
-            perform (data , parameters [0]);
+            for (int i = 0;i<groups.length-1;i++){
+                System.out.print (groups[i] + ", ");
+            }
+            System.out.println (groups[groups.length-1] + "(" + parameters[0] + ")");
+            avg_sum (data, parameters [0]);
         }   
     static String [][] organize (String [] parameters, String[] groups){
         BufferedReader br = null;
         try {
           br = new BufferedReader(new FileReader(parameters[1]));
         }catch (IOException e){
-            System.err.print("Error reading file \n" + parameters[1]);
+            System.err.println("Error reading file: " + parameters[1]);
+            System.err.println("File may not in the working folder ");
+            System.exit(0);
         }
         ArrayList <String[]> list = new ArrayList<String[]>();
         // only get what we need
@@ -88,7 +95,57 @@ public class Aggregate {
             }
         });
     }
-    static void perform (String [][] data , String function){
-        ;
+    static void avg_sum (String [][] data, String function){
+        DecimalFormat df = new DecimalFormat("###.#");
+        ArrayList <String[]> list = new ArrayList<>();
+        String temp [] = data[0];
+        int last = data[0].length - 1;
+        int counter = 1;
+        for (int i = 1; i<data.length;i++){
+            if (table_equals(temp, data[i])){
+                double x1 = Double.parseDouble(temp[last]);
+                double x2 = Double.parseDouble(data [i][last]); 
+                temp [last] = Double.toString(x1+x2);
+                counter ++;
+            }else {
+                if (function.equals("avg")){
+                    double y1 = Double.parseDouble(temp[last]);
+                    temp [last] = df.format(y1/counter);
+                } else if (function.equals("count")){
+                    temp [last] = Integer.toString(counter);
+                }
+                list.add(temp);
+                temp = new String [data[0].length];
+                temp = data[i];
+                counter = 1;
+            }
+        }
+        if (function.equals("avg")){
+            double y1 = Double.parseDouble(temp[last]);
+            temp [last] = df.format(y1/counter);
+        } else if (function.equals("count")){
+            temp [last] = Integer.toString(counter);
+        }
+        list.add(temp);
+        display(list);
+    }
+    static boolean table_equals (String [] a1 , String[] a2){
+        for (int i = 0; i< a1.length - 1 ; i++){
+            String s1 = a1[i];
+            String s2 = a2[i];
+            if (!s1.equals(s2)){
+                return false;
+            }
+        }
+        return true;
+    }
+    static void display (List<String[]> list){
+        for (int i = 0; i<list.size();i++){
+            String [] temp = list.get(i);
+            for (int j = 0; j<temp.length - 1;j++){
+                System.out.print (temp[j] + ", ");
+            }
+            System.out.println (temp[temp.length-1]);
+        }
     }
 }
