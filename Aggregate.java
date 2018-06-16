@@ -2,12 +2,12 @@ import java.io.*;
 import java.text.DecimalFormat;
 import java.util.*;
 public class Aggregate {
-
     public static void showUsage(){
         System.err.printf("Usage: java Aggregate <function> <aggregation column> <csv file> <group column 1> <group column 2> ...\n");
 		System.err.printf("Where <function> is one of \"count\", \"count_distinct\", \"sum\", \"avg\"\n");	
     }
     public static void main (String [] args){
+        //long startTime = System.nanoTime();
         if (args.length < 4){
             showUsage();
             return;
@@ -23,12 +23,20 @@ public class Aggregate {
             }
             groups [len] = args [1];
             String [][] data = organize(parameters, groups); // get the columns necessary
+    
             sort_data (data);
             for (int i = 0;i<groups.length-1;i++){
                 System.out.print (groups[i] + ", ");
             }
             System.out.println (groups[groups.length-1] + "(" + parameters[0] + ")");
+            if (parameters[0].equals("count_distinct")){
+                count_distinct(data);
+            }else{
             avg_sum (data, parameters [0]);
+            }
+            //long endTime   = System.nanoTime();
+            //long totalTime = (endTime - startTime)/1000000000;
+            //System.out.println(totalTime);
         }   
     static String [][] organize (String [] parameters, String[] groups){
         BufferedReader br = null;
@@ -40,7 +48,6 @@ public class Aggregate {
             System.exit(0);
         }
         ArrayList <String[]> list = new ArrayList<String[]>();
-        // only get what we need
         String [] buffer = null;
         try {
             buffer = br.readLine().split(",");
@@ -80,18 +87,18 @@ public class Aggregate {
         Arrays.sort (data, new Comparator <String[]>(){
             @Override
             public int compare(final String[] entry1, final String[] entry2){
-                String time1 = entry1[0];
-                String time2 = entry2[0];
-                if (time1.compareTo(time2) == 0){
-                   for (int i = 1; i< data[0].length - 1;i++){
-                        time1 = entry1[i];
-                        time2 = entry2[i];
-                        if (time1.compareTo(time2) != 0){
+                String value1 = entry1[0];
+                String value2 = entry2[0];
+                if (value1.compareTo(value2) == 0){
+                   for (int i = 1; i< data[0].length ;i++){
+                        value1 = entry1[i];
+                        value2 = entry2[i];
+                        if (value1.compareTo(value2) != 0){
                             break;
                         }
                    }
                 }
-                return time1.compareTo(time2);
+                return value1.compareTo(value2);
             }
         });
     }
@@ -103,9 +110,11 @@ public class Aggregate {
         int counter = 1;
         for (int i = 1; i<data.length;i++){
             if (table_equals(temp, data[i])){
-                double x1 = Double.parseDouble(temp[last]);
-                double x2 = Double.parseDouble(data [i][last]); 
-                temp [last] = Double.toString(x1+x2);
+                if (function.equals("avg") || function.equals("sum")){
+                    double x1 = Double.parseDouble(temp[last]);
+                    double x2 = Double.parseDouble(data [i][last]); 
+                    temp [last] = Double.toString(x1+x2);
+                }
                 counter ++;
             }else {
                 if (function.equals("avg")){
@@ -126,6 +135,31 @@ public class Aggregate {
         } else if (function.equals("count")){
             temp [last] = Integer.toString(counter);
         }
+        list.add(temp);
+        display(list);
+    }
+    static void count_distinct (String [][] data){
+        ArrayList<String[]> list = new ArrayList<>();
+        int counter = 1;
+        String [] temp = data [0];
+        for (int i = 1; i<data.length;i++){
+            if (Arrays.equals(temp,data[i])){
+                ;
+            }else {
+                if (table_equals(temp, data[i])){
+                    counter++;
+                    temp = data[i];
+                } else{
+                    temp[temp.length-1] = Integer.toString(counter);
+                    counter = 1;
+                    list.add(temp);
+                    temp = new String[2];
+                    temp = data[i];
+                }
+               
+            }
+        }
+        temp[temp.length-1] = Integer.toString(counter);
         list.add(temp);
         display(list);
     }
