@@ -1,2 +1,1 @@
-# CSC
-Projects from my classes
+Projects I work on
