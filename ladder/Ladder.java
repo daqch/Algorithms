@@ -132,6 +132,9 @@ public class Ladder {
 			System.out.println ("No word ladder found");
 			System.exit(0);
 		}
+// End of instructor's parser code
+		
+		
 		// Make sure we are only taking the words with the same length. Else, radix sort will not work.
 		int length = startWord.length();
 		LinkedList<String> temp  =  new LinkedList<>();
